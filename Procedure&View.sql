@@ -190,7 +190,7 @@ create view productview
 as
 select top 1 COUNT(ProductId) as eded,p.Name from Product p
 join Sale s on s.ProductId=p.Id
-where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+where DATEDIFF(MONTH,GETDATE(),SaleDate)=0 AND
 DATEDIFF(year,GETDATE(),SaleDate)=0
 group by p.Name 
 order by eded desc
@@ -204,7 +204,7 @@ begin
 
 select top 1 COUNT(ProductId) as eded,p.Name from Product p
 join Sale s on s.ProductId=p.Id
-where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+where DATEDIFF(MONTH,GETDATE(),SaleDate)=0 AND
 DATEDIFF(year,GETDATE(),SaleDate)=0
 group by p.Name 
 order by eded desc
