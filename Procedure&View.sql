@@ -56,7 +56,7 @@ GO
 --  1  --
 Create view product10
 as
-select e.Name as Adi,e.Surname as Soyadi,p.Name name,b.Name,p.SalePrice,p.Price from Sale s
+select e.Name as Adi,e.Surname as Soyadi,p.Name as productunAdi,b.Name,p.SalePrice,p.Price from Sale s
 join Product p on s.ProductId=p.Id
 join Employees e on s.EmployeeId=e.Id
 join Branch b on s.BranchId=b.Id
@@ -68,7 +68,7 @@ begin
 		set xact_abort on;
 		SET NOCOUNT ON;
 
-select e.Name as Adi,e.Surname as Soyadi,p.Name name,b.Name,p.SalePrice,p.Price from Sale s
+select e.Name as Adi,e.Surname as Soyadi,p.Name as productunAdi,b.Name,p.SalePrice,p.Price from Sale s
 join Product p on s.ProductId=p.Id
 join Employees e on s.EmployeeId=e.Id
 join Branch b on s.BranchId=b.Id
@@ -78,22 +78,21 @@ go
 
 
 -- 2 --
-alter view showProduct
+Create view showProduct
 as
-select Id, Name ,sum(SalePrice) salePrice ,Price from dbo.Product
-group by Product.Id,Product.Name ,Product.Price
-			
+select sum(SalePrice) from dbo.Product p
+join Sale s on s.ProductId=p.Id
 
-alter procedure dbo.selectProduct
+
+Create procedure dbo.selectProduct
 as 
 begin
 	
 		set xact_abort on;
 		SET NOCOUNT ON;
 
-		declare @ProductId int
-
-select sum(SalePrice) from Product
+select sum(SalePrice) from dbo.Product p
+join Sale s on s.ProductId=p.Id
 end
 go
 
@@ -106,7 +105,8 @@ as
 select SUM(SalePrice) SalePrice  from Product p
 join Sale s
 on s.ProductId=p.Id
-where MONTH(SaleDate)= MONTH(GETDATE())
+where DATEDIFF(MONTH,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
 go
 
 
@@ -120,7 +120,8 @@ begin
 select SUM(SalePrice) SalePrice  from Product p
 join Sale s
 on s.ProductId=p.Id
-where MONTH(SaleDate)=MONTH(GETDATE())
+where DATEDIFF(MONTH,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
 end
 go
 
@@ -155,27 +156,29 @@ exec dbo.Product5
 
 
 --  5  --
-alter view dbo.product6
+Create view dbo.product6
 as
-select top 1 COUNT(s.ProductId) as eded from Sale s
+select top 1 COUNT(s.ProductId) as eded,b.Name from Sale s
 join Branch b
 on s.BranchId=b.Id
-where day(SaleDate)=DAY(GETDATE())
+where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
 group by b.Name
 order by eded desc
 
 
-alter procedure dbo.Product7
+Create procedure dbo.Product7
 as 
 begin
 	
 		set xact_abort on;
 		SET NOCOUNT ON;
 
-select top 1 COUNT(s.ProductId) as eded from Sale s
+select top 1 COUNT(s.ProductId) as eded,b.Name from Sale s
 join Branch b
 on s.BranchId=b.Id
-where day(SaleDate)=DAY(GETDATE())
+where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
 group by b.Name
 order by eded desc
 end
@@ -183,6 +186,27 @@ go
 
 
 --  6  --
-select Top 1 COUNT(ProductId) from Product p
+create view productview
+as
+select top 1 COUNT(ProductId) as eded,p.Name from Product p
 join Sale s on s.ProductId=p.Id
-where MONTH(SaleDate)=MONTH(GETDATE())
+where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
+group by p.Name 
+order by eded desc
+
+Create procedure dbo.ProductProcedure
+as 
+begin
+	
+		set xact_abort on;
+		SET NOCOUNT ON;
+
+select top 1 COUNT(ProductId) as eded,p.Name from Product p
+join Sale s on s.ProductId=p.Id
+where DATEDIFF(DAY,GETDATE(),SaleDate)=0 AND
+DATEDIFF(year,GETDATE(),SaleDate)=0
+group by p.Name 
+order by eded desc
+end
+go
